@@ -192,7 +192,7 @@ output {
 
 ## Running the Application
 
-1. Ensure Kafka, Elasticsearch, Logstash, and MySQL are running and properly configured.
+1. Ensure Kafka, Elasticsearch, Logstash, and the proper Database Engine are running and properly configured.
 2. Update `application.yml` with your specific configurations.
 3. Build and run the Spring Boot application:
 
