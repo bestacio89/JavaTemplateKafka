@@ -1,0 +1,58 @@
+spring:
+
+  #Kafka configurations
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: your-group-id
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+#Hibernate Configurations
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.MySQLDialect
+      show_sql: true  # Set to true to log SQL statements
+      format_sql: true  # Pretty-print SQL in logs
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydatabase #to change to use the desired SGDB
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
+      cluster-name: my-cluster
+      cluster-nodes: localhost:9300
+
+  sleuth:
+    sampler:
+      probability: 1.0
+  zipkin:
+    base-url: http://localhost:9411/
+    enabled: true
+
+logging:
+  level:
+    org:
+      springframework: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  tracing:
+    sampling:
+      probability: 1.0
+
+
+
