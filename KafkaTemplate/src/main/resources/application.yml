@@ -1,5 +1,5 @@
 spring:
-  # PostgreSQL Configuration
+  # PostgreSQL Configuration for Business Data
   datasource:
     businessdatasource:
       url: ${BUSINESS_DATASOURCE_URL}
@@ -17,8 +17,8 @@ spring:
       hibernate:
         format_sql: true
 
-  # MongoDB Configuration
-  data:
+  # MongoDB Configuration for Event Data
+  event:
     mongodb:
       uri: ${EVENT_DATASOURCE_URI}
       database: ${EVENT_DATASOURCE_DATABASE}
@@ -35,7 +35,7 @@ spring:
       key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
       value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
 
-  # ElasticSearch Configuration (optional, remove if not used)
+  # Elasticsearch Configuration (optional, remove if not used)
   data:
     elasticsearch:
       repositories:
