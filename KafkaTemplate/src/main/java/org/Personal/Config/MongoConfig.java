@@ -1,4 +1,4 @@
-package com.example.config;
+package org.Personal.Config;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -12,10 +12,10 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "org.Personal.Persistence.Mongo")
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
-    @Value("${spring.data.mongodb.database}")
+    @Value("${event.datasource.database}")
     private String databaseName;
 
-    @Value("${spring.data.mongodb.uri}")
+    @Value("${event.datasource.uri}")
     private String mongoUri;
 
     @Override
