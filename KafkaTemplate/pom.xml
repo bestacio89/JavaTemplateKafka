@@ -19,6 +19,8 @@
         <logback.version>1.2.6</logback.version>
         <mockito.version>3.12.4</mockito.version>
         <junit.version>4.13.2</junit.version>
+        <kafka.clients.version>3.0.0</kafka.clients.version>
+        <zookeeper.version>3.7.0</zookeeper.version>
     </properties>
 
     <dependencyManagement>
@@ -26,12 +28,12 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>3.0.0</version> <!-- Specify the latest stable version -->
+                <version>${kafka.clients.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
-                <version>3.7.0</version> <!-- Specify the latest stable version -->
+                <version>${zookeeper.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -51,23 +53,32 @@
             <version>${spring.kafka.version}</version>
         </dependency>
 
-        <!-- Kafka Clients -->
+        <!-- PostgreSQL Driver -->
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.3.6</version>
         </dependency>
 
-        <!-- Apache ZooKeeper -->
+        <!-- Spring Data JPA -->
         <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
 
-        <!-- Logstash Logback Encoder -->
+        <!-- Spring Data MongoDB -->
         <dependency>
-            <groupId>net.logstash.logback</groupId>
-            <artifactId>logstash-logback-encoder</artifactId>
-            <version>6.6</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!-- HikariCP for connection pooling -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.0</version>
         </dependency>
 
         <!-- Jackson for JSON handling -->
@@ -84,10 +95,18 @@
             <version>${slf4j.version}</version>
         </dependency>
 
+        <!-- Logback for SLF4J -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+
+        <!-- Logstash Logback Encoder -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.6</version>
         </dependency>
 
         <!-- Spring Boot Test -->
