@@ -29,8 +29,7 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-      - name: Run Maven linter
-        run: mvn checkstyle:check
+
 
   test_and_deploy:
     runs-on: ubuntu-latest

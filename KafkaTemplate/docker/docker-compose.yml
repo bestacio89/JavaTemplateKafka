@@ -44,7 +44,7 @@ services:
     container_name: PostgreSQL
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: Product
+      POSTGRES_DB: $(POSTGRESDB)
       POSTGRES_USER: ${POSTGRES_USER}
     ports:
       - "5432:5432"
@@ -53,20 +53,6 @@ services:
     networks:
       - app-network
 
-  mariadb:
-    image: mariadb:10.8
-    container_name: MariDb
-    environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_DATABASE: mydatabase
-      MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./MariaDBData:/var/lib/mysql
-    networks:
-      - app-network
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest  # Consider LTS version for SQL Server

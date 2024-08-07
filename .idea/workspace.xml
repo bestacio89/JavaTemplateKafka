@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c928f9cc-2c4c-4b5c-90f9-7f7f30544f06" name="Changes" comment="" />
+    <list default="true" id="c928f9cc-2c4c-4b5c-90f9-7f7f30544f06" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/testing-pipeline.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/testing-pipeline.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -64,7 +66,7 @@
       <workItem from="1723023390563" duration="14676000" />
       <workItem from="1723042753047" duration="352000" />
       <workItem from="1723043926521" duration="770000" />
-      <workItem from="1723058046341" duration="2190000" />
+      <workItem from="1723058046341" duration="2724000" />
     </task>
     <servers />
   </component>
