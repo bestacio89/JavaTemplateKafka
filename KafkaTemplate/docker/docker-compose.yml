@@ -1,124 +1,105 @@
-name: CI/CD Pipeline
+services:
+  mongodb:
+    image: mongo:4.4
+    container_name: MongoDB
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./MongoDBData:/data/db
+    networks:
+      - app-network
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  zookeeper:
+    image: confluentinc/cp-zookeeper:8.2.3
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    networks:
+      - app-network
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+  kafka:
+    image: confluentinc/cp-kafka:8.2.3
+    container_name: Franz
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./KafkaData:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network
 
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+  postgres:
+    image: postgres:14.5
+    container_name: PostgreSQL
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: Product
+      POSTGRES_USER: ${POSTGRES_USER}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./PostgresData:/var/lib/postgresql/data
+    networks:
+      - app-network
 
-      mongo:
-        image: mongo:6
-        env:
-          MONGO_INITDB_DATABASE: ${{ secrets.MONGO_INITDB_DATABASE }}
-          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-        ports:
-          - 27017:27017
+  mariadb:
+    image: mariadb:10.8
+    container_name: MariDb
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: mydatabase
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./MariaDBData:/var/lib/mysql
+    networks:
+      - app-network
 
-      zookeeper:
-        image: bitnami/zookeeper:latest
-        env:
-          ALLOW_ANONYMOUS_LOGIN: "yes"
-        ports:
-          - 2181:2181
-        options: >-
-          --health-cmd "echo ruok | nc -w 2 localhost 2181 | grep imok"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest  # Consider LTS version for SQL Server
+    container_name: SQLServer
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: ${SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./SQLServerData:/var/opt/mssql
+    networks:
+      - app-network
 
-      kafka:
-        image: confluentinc/cp-kafka:latest
-        env:
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-          KAFKA_LISTENERS: PLAINTEXT://:9092
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-        ports:
-          - 9092:9092
-        options: >-
-          --health-cmd "kafka-topics --bootstrap-server localhost:9092 --list"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
+  app:
+    build:
+      context: ..
+      dockerfile: template.Dockerfile
+    container_name: TestSpring
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Product
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+networks:
+  app-network:
+    driver: bridge
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          java-version: 17
-
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
-
-      - name: Build with Maven
-        run: mvn clean install
-
-      - name: Run tests with Maven
-        run: mvn test
-        env:
-          BUSINESS_DATASOURCE_URL: ${{ secrets.BUSINESS_DATASOURCE_URL }}
-          BUSINESS_DATASOURCE_USERNAME: ${{ secrets.BUSINESS_DATASOURCE_USERNAME }}
-          BUSINESS_DATASOURCE_PASSWORD: ${{ secrets.BUSINESS_DATASOURCE_PASSWORD }}
-          JPA_DDL_AUTO: ${{ secrets.JPA_DDL_AUTO }}
-          JPA_SHOW_SQL: ${{ secrets.JPA_SHOW_SQL }}
-          EVENT_DATASOURCE_URI: ${{ secrets.EVENT_DATASOURCE_URI }}
-          EVENT_DATASOURCE_DATABASE: ${{ secrets.EVENT_DATASOURCE_DATABASE }}
-          KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
-          KAFKA_CONSUMER_GROUP_ID: ${{ secrets.KAFKA_CONSUMER_GROUP_ID }}
-          KAFKA_AUTO_OFFSET_RESET: ${{ secrets.KAFKA_AUTO_OFFSET_RESET }}
-          KAFKA_CONSUMER_KEY_DESERIALIZER: ${{ secrets.KAFKA_CONSUMER_KEY_DESERIALIZER }}
-          KAFKA_CONSUMER_VALUE_DESERIALIZER: ${{ secrets.KAFKA_CONSUMER_VALUE_DESERIALIZER }}
-          KAFKA_PRODUCER_KEY_SERIALIZER: ${{ secrets.KAFKA_PRODUCER_KEY_SERIALIZER }}
-          KAFKA_PRODUCER_VALUE_SERIALIZER: ${{ secrets.KAFKA_PRODUCER_VALUE_SERIALIZER }}
-          ELASTICSEARCH_CLUSTER_NAME: ${{ secrets.ELASTICSEARCH_CLUSTER_NAME }}
-          ELASTICSEARCH_CLUSTER_NODES: ${{ secrets.ELASTICSEARCH_CLUSTER_NODES }}
-          SLEUTH_SAMPLER_PROBABILITY: ${{ secrets.SLEUTH_SAMPLER_PROBABILITY }}
-          ZIPKIN_BASE_URL: ${{ secrets.ZIPKIN_BASE_URL }}
-          ZIPKIN_ENABLED: ${{ secrets.ZIPKIN_ENABLED }}
-          TRACING_SAMPLING_PROBABILITY: ${{ secrets.TRACING_SAMPLING_PROBABILITY }}
-
-      - name: Build Docker image
-        run: mvn dockerfile:build
-
-    #  - name: Push Docker image
-    #    env:
-    #      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-     #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #  run: |
-       #   echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-        #  docker push your-docker-repo/kafka-template:1.0-SNAPSHOT
-
-    #  - name: Deploy to Kubernetes (if applicable)
-    #    env:
-    #      KUBECONFIG: ${{ secrets.KUBECONFIG }}
-     #   run: kubectl apply -f k8s-deployment.yml
+volumes:
+  db_data:

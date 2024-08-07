@@ -1,15 +1,38 @@
 name: CI/CD Pipeline
 
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
 on:
   push:
-    branches:
-      - main
+    branches: ['main']
+    paths-ignore: ['docs/**']
   pull_request:
-    branches:
-      - main
+    branches: ['main']
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  linter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Run Maven linter
+        run: mvn checkstyle:check
+
+  test_and_deploy:
     runs-on: ubuntu-latest
 
     services:
@@ -43,7 +66,7 @@ jobs:
         ports:
           - 2181:2181
         options: >-
-          --health-cmd "echo ruok | nc 127.0.0.1 2181 | grep imok"
+          --health-cmd "echo ruok | nc -w 2 localhost 2181 | grep imok"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -53,25 +76,26 @@ jobs:
         env:
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
           KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-          KAFKA_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
-          KAFKA_LISTENER_NAME: INSIDE
-          KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
+          KAFKA_LISTENERS: PLAINTEXT://:9092
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
         ports:
           - 9092:9092
         options: >-
-          --health-cmd "bash -c 'unset JMX_PORT; kafka-topics --bootstrap-server localhost:9092 --list'"
+          --health-cmd "kafka-topics --bootstrap-server localhost:9092 --list"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
-          java-version: 17
+          distribution: 'adopt'
+          java-version: '17'
 
       - name: Cache Maven packages
         uses: actions/cache@v2
@@ -80,32 +104,31 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
-      - name: Build with Maven
-        run: mvn clean install
-
-      - name: Run tests with Maven
-        run: mvn test
+      - name: Build the Docker stack
         env:
-          BUSINESS_DATASOURCE_URL: ${{ secrets.BUSINESS_DATASOURCE_URL }}
-          BUSINESS_DATASOURCE_USERNAME: ${{ secrets.BUSINESS_DATASOURCE_USERNAME }}
-          BUSINESS_DATASOURCE_PASSWORD: ${{ secrets.BUSINESS_DATASOURCE_PASSWORD }}
-          JPA_DDL_AUTO: ${{ secrets.JPA_DDL_AUTO }}
-          JPA_SHOW_SQL: ${{ secrets.JPA_SHOW_SQL }}
-          EVENT_DATASOURCE_URI: ${{ secrets.EVENT_DATASOURCE_URI }}
-          EVENT_DATASOURCE_DATABASE: ${{ secrets.EVENT_DATASOURCE_DATABASE }}
-          KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
-          KAFKA_CONSUMER_GROUP_ID: ${{ secrets.KAFKA_CONSUMER_GROUP_ID }}
-          KAFKA_AUTO_OFFSET_RESET: ${{ secrets.KAFKA_AUTO_OFFSET_RESET }}
-          KAFKA_CONSUMER_KEY_DESERIALIZER: ${{ secrets.KAFKA_CONSUMER_KEY_DESERIALIZER }}
-          KAFKA_CONSUMER_VALUE_DESERIALIZER: ${{ secrets.KAFKA_CONSUMER_VALUE_DESERIALIZER }}
-          KAFKA_PRODUCER_KEY_SERIALIZER: ${{ secrets.KAFKA_PRODUCER_KEY_SERIALIZER }}
-          KAFKA_PRODUCER_VALUE_SERIALIZER: ${{ secrets.KAFKA_PRODUCER_VALUE_SERIALIZER }}
-          ELASTICSEARCH_CLUSTER_NAME: ${{ secrets.ELASTICSEARCH_CLUSTER_NAME }}
-          ELASTICSEARCH_CLUSTER_NODES: ${{ secrets.ELASTICSEARCH_CLUSTER_NODES }}
-          SLEUTH_SAMPLER_PROBABILITY: ${{ secrets.SLEUTH_SAMPLER_PROBABILITY }}
-          ZIPKIN_BASE_URL: ${{ secrets.ZIPKIN_BASE_URL }}
-          ZIPKIN_ENABLED: ${{ secrets.ZIPKIN_ENABLED }}
-          TRACING_SAMPLING_PROBABILITY: ${{ secrets.TRACING_SAMPLING_PROBABILITY }}
+          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
+          MARIADB_USER: ${{ secrets.MARIADB_USER }}
+          MARIADB_PASSWORD: ${{ secrets.MARIADB_PASSWORD }}
+          SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
+        run: |
+          docker compose -f Docker/docker-compose.yml build
+
+      - name: Run Liquibase Migrations
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        run: |
+          docker compose -f Docker/docker-compose.yml run --rm app mvn liquibase:update
+
+      - name: Run Maven Tests
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        run: |
+          docker compose -f Docker/docker-compose.yml run --rm app mvn test
 
       - name: Build Docker image
         run: mvn dockerfile:build
@@ -118,7 +141,12 @@ jobs:
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           docker push your-docker-repo/kafka-template:1.0-SNAPSHOT
 
-      - name: Deploy to Kubernetes (if applicable)
+      - name: Deploy Application
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
-        run: kubectl apply -f k8s-deployment.yml
+        run: |
+          kubectl apply -f k8s-deployment.yml
+
+#      - name: Tear down the Docker stack
+#        run: |
+#          docker compose -f Docker/docker-compose.yml down
