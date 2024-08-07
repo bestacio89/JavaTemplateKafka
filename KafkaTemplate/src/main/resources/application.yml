@@ -1,42 +1,56 @@
 spring:
+  # PostgreSQL Configuration for Business Data
+  datasource:
+    businessdatasource:
+      url: ${BUSINESS_DATASOURCE_URL}
+      username: ${BUSINESS_DATASOURCE_USERNAME}
+      password: ${BUSINESS_DATASOURCE_PASSWORD}
+      driver-class-name: org.postgresql.Driver
 
-  #Kafka configurations
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: your-group-id
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-#Hibernate Configurations
   jpa:
     hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
-      show_sql: true  # Set to true to log SQL statements
-      format_sql: true  # Pretty-print SQL in logs
-  datasource:
-    url: jdbc:mysql://localhost:3306/mydatabase #to change to use the desired SGDB
-    username: root
-    password: password
-    driver-class-name: com.mysql.cj.jdbc.Driver
+      ddl-auto: ${JPA_DDL_AUTO}
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      show-sql: ${JPA_SHOW_SQL}
+      format-sql: true  # Pretty-print SQL in logs
+    properties:
+      hibernate:
+        format_sql: true
+
+  # MongoDB Configuration for Event Data
+  event:
+    mongodb:
+      uri: ${EVENT_DATASOURCE_URI}
+      database: ${EVENT_DATASOURCE_DATABASE}
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+      auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET}
+      key-deserializer: ${KAFKA_CONSUMER_KEY_DESERIALIZER}
+      value-deserializer: ${KAFKA_CONSUMER_VALUE_DESERIALIZER}
+    producer:
+      key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
+      value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
+
+  # Elasticsearch Configuration (optional, remove if not used)
   data:
     elasticsearch:
       repositories:
         enabled: true
-      cluster-name: my-cluster
-      cluster-nodes: localhost:9300
+      cluster-name: ${ELASTICSEARCH_CLUSTER_NAME}
+      cluster-nodes: ${ELASTICSEARCH_CLUSTER_NODES}
 
+  # Sleuth and Zipkin Configuration
   sleuth:
     sampler:
-      probability: 1.0
+      probability: ${SLEUTH_SAMPLER_PROBABILITY}
+
   zipkin:
-    base-url: http://localhost:9411/
-    enabled: true
+    base-url: ${ZIPKIN_BASE_URL}
+    enabled: ${ZIPKIN_ENABLED}
 
 logging:
   level:
@@ -52,7 +66,4 @@ management:
         include: "*"
   tracing:
     sampling:
-      probability: 1.0
-
-
-
+      probability: ${TRACING_SAMPLING_PROBABILITY}
