@@ -1,5 +1,6 @@
 package org.Personal.Domain.Mongo.Entities;
 
+import org.Personal.Domain.Generic.IEntity;
 import org.Personal.Domain.Mongo.Enums.EventType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -7,13 +8,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Document(collection = "events")
-public class Event {
+public class Event implements IEntity<String> {
 
     @Id
     private String id;
     private EventType type;
     private String description;
     private LocalDateTime timestamp;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
+    private boolean deleted;
 
     // Getters and Setters
     public String getId() {
@@ -46,5 +50,35 @@ public class Event {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    @Override
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
+    @Override
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    @Override
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

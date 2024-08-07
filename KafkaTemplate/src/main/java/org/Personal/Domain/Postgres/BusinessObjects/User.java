@@ -1,11 +1,13 @@
 package org.Personal.Domain.Postgres.BusinessObjects;
 
+import org.Personal.Domain.Generic.IEntity;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements IEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,6 +16,9 @@ public class User {
     private String username;
     private String email;
     private LocalDateTime createdAt;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
+    private boolean deleted;
 
     // Getters and Setters
     public Long getId() {
@@ -46,5 +51,34 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    @Override
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    @Override
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
+    @Override
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    @Override
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
