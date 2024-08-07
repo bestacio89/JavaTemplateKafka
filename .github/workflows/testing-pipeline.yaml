@@ -37,11 +37,13 @@ jobs:
           - 27017:27017
 
       zookeeper:
-        image: wurstmeister/zookeeper:3.7
+        image: bitnami/zookeeper:latest
+        env:
+          ALLOW_ANONYMOUS_LOGIN: "yes"
         ports:
           - 2181:2181
         options: >-
-          --health-cmd "echo ruok | nc localhost 2181 | grep imok"
+          --health-cmd "echo ruok | nc 127.0.0.1 2181 | grep imok"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
