@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+
 @Service
 public class UserService {
 
@@ -28,24 +29,17 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         // Publish an event
-        Event event = new Event();
-        event.setType(EventType.CREATION);
-        event.setDescription("User created with ID: " + savedUser.getId());
-        event.setTimestamp(LocalDateTime.now());
-        producer.sendMessage(event);
+        producer.sendEvent(EventType.CREATION, savedUser);
 
         return savedUser;
     }
 
     public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
 
+         User userdeleted = userRepository.findById(userId).orElse(null);
+        userRepository.deleteById(userId);
         // Publish an event
-        Event event = new Event();
-        event.setType(EventType.DELETION);
-        event.setDescription("User deleted with ID: " + userId);
-        event.setTimestamp(LocalDateTime.now());
-        producer.sendMessage(event);
+        producer.sendEvent(EventType.DELETION, userdeleted);
     }
 
     public User getUserByUsername(String username) {
