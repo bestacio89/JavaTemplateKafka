@@ -29,62 +29,11 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-
+      - name: Run Maven linter
+        run: mvn checkstyle:check
 
   test_and_deploy:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      mongo:
-        image: mongo:6
-        env:
-          MONGO_INITDB_DATABASE: ${{ secrets.MONGO_INITDB_DATABASE }}
-          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-        ports:
-          - 27017:27017
-
-      zookeeper:
-        image: bitnami/zookeeper:latest
-        env:
-          ALLOW_ANONYMOUS_LOGIN: "yes"
-        ports:
-          - 2181:2181
-        options: >-
-          --health-cmd "echo ruok | nc -w 2 localhost 2181 | grep imok"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      kafka:
-        image: confluentinc/cp-kafka:latest
-        env:
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-          KAFKA_LISTENERS: PLAINTEXT://:9092
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-        ports:
-          - 9092:9092
-        options: >-
-          --health-cmd "kafka-topics --bootstrap-server localhost:9092 --list"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
 
     steps:
       - name: Checkout Code Repository
@@ -103,49 +52,38 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
-      - name: Build the Docker stack
+      - name: Build and start services with Docker Compose
         env:
           MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
-          MARIADB_USER: ${{ secrets.MARIADB_USER }}
-          MARIADB_PASSWORD: ${{ secrets.MARIADB_PASSWORD }}
-          SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
         run: |
-          docker compose -f Docker/docker-compose.yml build
+          cd Docker
+          docker-compose up -d --build
 
       - name: Run Liquibase Migrations
         env:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
         run: |
-          docker compose -f Docker/docker-compose.yml run --rm app mvn liquibase:update
+          cd Docker
+          docker-compose run --rm app mvn liquibase:update
 
       - name: Run Maven Tests
         env:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
         run: |
-          docker compose -f Docker/docker-compose.yml run --rm app mvn test
+          cd Docker
+          docker-compose run --rm app mvn test
 
       - name: Build Docker image
-        run: mvn dockerfile:build
-
-      - name: Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-          docker push your-docker-repo/kafka-template:1.0-SNAPSHOT
+          cd Docker
+          docker-compose run --rm app mvn dockerfile:build
 
-      - name: Deploy Application
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
+      - name: Tear down Docker stack
         run: |
-          kubectl apply -f k8s-deployment.yml
-
-#      - name: Tear down the Docker stack
-#        run: |
-#          docker compose -f Docker/docker-compose.yml down
+          cd Docker
+          docker-compose down
