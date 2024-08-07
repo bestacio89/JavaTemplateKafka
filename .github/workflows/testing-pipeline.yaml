@@ -56,6 +56,11 @@ jobs:
         image: wurstmeister/zookeeper:3.7
         ports:
           - 2181:2181
+        options: >-
+          --health-cmd "echo ruok | nc localhost 2181 | grep imok"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code
