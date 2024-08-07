@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -60,12 +59,12 @@
             <version>42.3.6</version>
         </dependency>
 
-           <!-- Spring Boot Starter Web -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        <version>${spring.boot.version}</version>
-    </dependency>
+        <!-- Spring Boot Starter Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
 
         <!-- Spring Data JPA -->
         <dependency>
@@ -140,22 +139,21 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Kafka Test Dependency -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <version>${spring.kafka.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-            <!-- Spring Kafka Test Dependency -->
-    <dependency>
-        <groupId>org.springframework.kafka</groupId>
-        <artifactId>spring-kafka-test</artifactId>
-        <version>${spring.kafka.version}</version>
-        <scope>test</scope>
-    </dependency>
-
-    <!-- Test Containers for Kafka -->
-    <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>kafka</artifactId>
-        <version>1.17.3</version> <!-- Check for the latest version -->
-        <scope>test</scope>
-    </dependency>
+        <!-- Test Containers for Kafka -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <version>1.17.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -233,6 +231,29 @@
                     <tag>${project.version}</tag>
                 </configuration>
             </plugin>
+
+            <!-- Maven Toolchains Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>toolchain</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <toolchains>
+                        <jdk>
+                            <version>17</version>
+                            <vendor>any</vendor>
+                        </jdk>
+                    </toolchains>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
