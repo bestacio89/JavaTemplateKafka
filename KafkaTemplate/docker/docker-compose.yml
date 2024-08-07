@@ -62,7 +62,7 @@ services:
       - zookeeper
 
   zookeeper:
-    image: wurstmeister/zookeeper:3.7
+    image: bitnami/zookeeper:Latest 
     ports:
       - "2181:2181"
 
