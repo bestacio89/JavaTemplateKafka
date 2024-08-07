@@ -69,7 +69,7 @@ services:
 
   app:
     build:
-      context: ..
+      context: ../KafkaTemplate
       dockerfile: template.Dockerfile
     container_name: TestSpring
     ports:

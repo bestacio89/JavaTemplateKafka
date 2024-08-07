@@ -74,8 +74,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
         run: |
-          cd Docker
-          docker-compose run --rm app mvn test
+          
+          docker compose -f Docker/docker-compose.yml run --rm app mvn test  # Run Maven tests
 
       - name: Build Docker image
         run: |
