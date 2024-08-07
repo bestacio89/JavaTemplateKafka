@@ -1,31 +1,34 @@
 package org.Personal.Producer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.Personal.Domain.Mongo.Entities.Event;
+import org.Personal.Domain.Mongo.Enums.EventType;
+import org.Personal.Domain.Postgres.BusinessObjects.User;
+
+import org.Personal.Utility.JsonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 @Component
 public class Producer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
 
-    public Producer(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper) {
+    @Autowired
+    public Producer(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-        this.objectMapper = objectMapper;
     }
 
-    public void sendMessage(Event event) {
-        try {
-            // Convert Event to JSON string
-            String message = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send("event-topic", message);
-            System.out.println("Sent event: " + message);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+    public void sendEvent(EventType type, User user) {
+        Event event = new Event();
+        event.setType(type);
+        event.setDescription(JsonUtil.serialize(user));
+        event.setTimestamp(LocalDateTime.now());
+
+        kafkaTemplate.send("test-topic", JsonUtil.serialize(event));
+        System.out.println("Sent event: " + event);
     }
 }
