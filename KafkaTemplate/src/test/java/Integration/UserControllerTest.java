@@ -1,8 +1,9 @@
-package org.Personal.Web.Controller;
+package Integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.Personal.Domain.Postgres.BusinessObjects.User;
 import org.Personal.Service.UserService;
+import org.Personal.Web.Controller.UserController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

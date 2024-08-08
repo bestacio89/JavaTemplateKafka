@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("test")
 public class UserServiceTest {
 
-    
+
     private UserService userService;
 
     @Autowired
