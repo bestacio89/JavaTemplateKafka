@@ -1,8 +1,9 @@
 package org.Personal.Domain.Postgres.BusinessObjects;
 
+import jakarta.persistence.*;
 import org.Personal.Domain.Generic.IEntity;
 
-import javax.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
