@@ -14,24 +14,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.test.EmbeddedKafkaBroker;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.MessageListener;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @ContextConfiguration(classes = {KafkaTestConfig.class, Main.class})
 @SpringBootTest
 @ActiveProfiles("test")
@@ -44,9 +37,6 @@ public class KafkaTest {
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
-    private EmbeddedKafkaBroker embeddedKafkaBroker;
-
-    @Autowired
     private BusinessRebuildService businessRebuildService;
 
     @Autowired
@@ -57,10 +47,10 @@ public class KafkaTest {
 
     @BeforeEach
     void setUp() {
-        // Initialize the Consumer with a mock BusinessRebuildService
+        // Re-initialize the Consumer with the mocked BusinessRebuildService
         consumer = new Consumer(businessRebuildService);
 
-        // Resetting mock service for each test
+        // Reset the mock for each test
         reset(businessRebuildService);
     }
 
@@ -182,29 +172,5 @@ public class KafkaTest {
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         verify(businessRebuildService, times(2)).handleEvent(eventCaptor.capture());
         assertEquals(2, eventCaptor.getAllValues().size());
-    }
-
-    // Additional utility method to configure an embedded Kafka consumer
-    private ConcurrentMessageListenerContainer<String, String> createMessageListenerContainer(CountDownLatch latch) {
-        Map<String, Object> consumerProps = new HashMap<>();
-        consumerProps.put("bootstrap.servers", embeddedKafkaBroker.getBrokersAsString());
-        consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        consumerProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        consumerProps.put("group.id", "test-group");
-        consumerProps.put("auto.offset.reset", "earliest");
-
-        DefaultKafkaConsumerFactory<String, String> consumerFactory = new DefaultKafkaConsumerFactory<>(consumerProps);
-
-        ConcurrentMessageListenerContainer<String, String> container = new ConcurrentMessageListenerContainer<>(
-                consumerFactory,
-                new ContainerProperties("test-topic")
-        );
-
-        container.setupMessageListener((MessageListener<String, String>) record -> {
-            System.out.println("Received message: " + record.value());
-            latch.countDown();
-        });
-
-        return container;
     }
 }
