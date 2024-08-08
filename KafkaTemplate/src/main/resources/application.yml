@@ -4,12 +4,12 @@ spring:
   # PostgreSQL Configuration for Business Data
   datasource:
     businessdatasource:
-      url: ${BUSINESS_DATASOURCE_URL}
-      username: ${BUSINESS_DATASOURCE_USERNAME}
-      password: ${BUSINESS_DATASOURCE_PASSWORD}
+      url: ${SPRING_DATASOURCE_URL}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
       driver-class-name: org.postgresql.Driver
 
-liquibase:
+liquidbase:
   change-log: classpath:db/changelog/db.changelog-master.xml
   enabled: true
   default-schema: public
