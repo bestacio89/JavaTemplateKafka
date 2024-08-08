@@ -53,20 +53,6 @@ services:
     networks:
       - app-network
 
-
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2019-latest  # Consider LTS version for SQL Server
-    container_name: SQLServer
-    environment:
-      ACCEPT_EULA: Y
-      SA_PASSWORD: ${SA_PASSWORD}
-    ports:
-      - "1433:1433"
-    volumes:
-      - ./SQLServerData:/var/opt/mssql
-    networks:
-      - app-network
-
   app:
     build:
       context: ../KafkaTemplate
