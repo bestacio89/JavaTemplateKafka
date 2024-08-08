@@ -1,6 +1,8 @@
 package Integration;
 
+import Config.KafkaTestConfig;
 import org.Personal.Consumer.Consumer;
+import org.Personal.Main;
 import org.Personal.Producer.Producer;
 import org.Personal.Domain.Mongo.Entities.Event;
 import org.Personal.Domain.Mongo.Enums.EventType;
@@ -20,6 +22,7 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -29,26 +32,27 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+@ContextConfiguration(classes = {KafkaTestConfig.class, Main.class})
 @SpringBootTest
 @ActiveProfiles("test")
 public class KafkaTest {
 
-
+    @Autowired
     private Producer producer;
 
-
+    @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
-
+    @Autowired
     private EmbeddedKafkaBroker embeddedKafkaBroker;
 
-
+    @Autowired
     private BusinessRebuildService businessRebuildService;
 
-
+    @Autowired
     private CountDownLatch countDownLatch;
 
+    @Autowired
     private Consumer consumer;
 
     @BeforeEach
