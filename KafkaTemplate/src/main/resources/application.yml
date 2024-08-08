@@ -7,6 +7,13 @@ spring:
       password: ${BUSINESS_DATASOURCE_PASSWORD}
       driver-class-name: org.postgresql.Driver
 
+liquibase:
+  change-log: classpath:db/changelog/db.changelog-master.xml
+  enabled: true
+  default-schema: public
+  contexts: development,test
+
+
   jpa:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO}

@@ -11,16 +11,16 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.kafka.version>2.8.0</spring.kafka.version>
-        <spring.boot.version>2.6.4</spring.boot.version>
-        <jackson.version>2.13.0</jackson.version>
-        <slf4j.version>1.7.32</slf4j.version>
-        <logback.version>1.2.6</logback.version>
-        <mockito.version>3.12.4</mockito.version>
-        <junit.version>4.13.2</junit.version>
-        <kafka.clients.version>3.0.0</kafka.clients.version>
-        <zookeeper.version>3.7.0</zookeeper.version>
-        <liquibase.version>4.6.2</liquibase.version>
+        <spring.boot.version>3.3.0</spring.boot.version>
+        <spring.kafka.version>3.1.0</spring.kafka.version>
+        <jackson.version>2.15.2</jackson.version>
+        <slf4j.version>2.0.3</slf4j.version>
+        <logback.version>1.4.8</logback.version>
+        <mockito.version>5.4.0</mockito.version>
+        <junit.version>5.9.3</junit.version>
+        <kafka.clients.version>3.4.0</kafka.clients.version>
+        <zookeeper.version>3.8.1</zookeeper.version>
+        <liquibase.version>4.26.0</liquibase.version>
     </properties>
 
     <dependencyManagement>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.3.6</version>
+            <version>42.5.1</version>
         </dependency>
 
         <!-- Spring Boot Starter Web -->
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>5.0.0</version>
+            <version>5.0.1</version>
         </dependency>
 
         <!-- Jackson for JSON handling -->
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>6.6</version>
+            <version>7.0</version>
         </dependency>
 
         <!-- Spring Boot Test -->
@@ -124,10 +124,16 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JUnit for testing -->
+        <!-- JUnit 5 -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -152,7 +158,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
-            <version>1.17.3</version>
+            <version>1.18.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -173,18 +179,18 @@
                 <version>${spring.boot.version}</version>
             </plugin>
 
-            <!-- Maven Surefire Plugin -->
+            <!-- Maven Surefire Plugin for running tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.0-M5</version>
             </plugin>
 
             <!-- Maven Checkstyle Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.1</version>
                 <configuration>
                     <configLocation>google_checks.xml</configLocation> <!-- or your custom Checkstyle file -->
                     <failOnViolation>true</failOnViolation>
@@ -199,7 +205,7 @@
                 </executions>
             </plugin>
 
-            <!-- JaCoCo Plugin -->
+            <!-- JaCoCo Plugin for code coverage -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
