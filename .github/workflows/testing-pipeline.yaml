@@ -71,7 +71,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
         run: |
           
-          docker compose -f docker/docker-compose.yml run --rm app mvn test  # Run Maven tests
+          docker compose -f docker/docker-compose.yml run --rm app mvn test -Pskip-toolchains # Run Maven tests
 
 
 
