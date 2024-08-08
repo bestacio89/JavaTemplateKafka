@@ -56,7 +56,7 @@ services:
   app:
     build:
       context: ../KafkaTemplate
-      dockerfile: KafkaTemplate.KafkaTemplate.Dockerfile
+      dockerfile: KafkaTemplate.Dockerfile
     container_name: TestSpring
     ports:
       - "8080:8080"
