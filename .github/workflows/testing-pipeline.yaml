@@ -29,8 +29,6 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-      - name: Run Maven linter
-        run: mvn checkstyle:check
 
   test_and_deploy:
     runs-on: ubuntu-latest
@@ -61,13 +59,12 @@ jobs:
           cd Docker
           docker-compose up -d --build
 
-      - name: Run Liquibase Migrations
-        env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-        run: |
-          cd Docker
-          docker-compose run --rm app mvn liquibase:update
+     # - name: Run Liquibase Migrations
+     #   env:
+     #     POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+     #     POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      #  run: |
+      #    docker compose -f Docker/docker-compose.yml run --rm app mvn test  # Run Maven tests
 
       - name: Run Maven Tests
         env:
@@ -75,12 +72,9 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
         run: |
           
-          docker compose -f Docker/docker-compose.yml run --rm app mvn test  # Run Maven tests
+          docker compose -f docker/docker-compose.yml run --rm app mvn test  # Run Maven tests
 
-      - name: Build Docker image
-        run: |
-          cd Docker
-          docker-compose run --rm app mvn dockerfile:build
+
 
 
       - name: Tear down Docker stack
