@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.Mockito.when;
-@SpringBootTest
+
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
 
@@ -43,8 +42,8 @@ public class UserControllerTest {
         when(userService.createUser(user)).thenReturn(user);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(user)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("testUser"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("test@example.com"));
@@ -59,7 +58,7 @@ public class UserControllerTest {
         when(userService.getUserByUsername("testUser")).thenReturn(user);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users/testUser")
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("testUser"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("test@example.com"));
