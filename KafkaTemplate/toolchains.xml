@@ -1,0 +1,12 @@
+<toolchains>
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>17</version>
+            <vendor>any</vendor>
+        </provides>
+        <configuration>
+            <jdkHome>/usr/local/openjdk-17</jdkHome>
+        </configuration>
+    </toolchain>
+</toolchains>

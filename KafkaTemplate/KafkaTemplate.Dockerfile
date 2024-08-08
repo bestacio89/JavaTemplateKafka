@@ -9,7 +9,7 @@ COPY pom.xml .
 COPY src ./src
 
 # Package the application
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
 # Base image for running the application (using Java 17)
 FROM eclipse-temurin:17-jre
