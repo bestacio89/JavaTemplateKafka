@@ -15,7 +15,7 @@ services:
       - app-network
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:8.2.3
+    image: bitnami/zookeeper:latest
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
