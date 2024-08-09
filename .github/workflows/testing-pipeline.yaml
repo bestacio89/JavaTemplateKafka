@@ -1,37 +1,21 @@
-name: Build and Test
+name: Integration and Testing
 
 env:
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
 
 on:
-  push:
-    branches: ['main']
-    paths-ignore: ['docs/**']
   pull_request:
-    branches: ['main']
+    branches: ['develop']
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  linter:
+  lint_and_test:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code Repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '17'
-
-
-  test_and_deploy:
-    runs-on: ubuntu-latest
+    environment: Integration and Testing
 
     steps:
       - name: Checkout Code Repository
@@ -50,33 +34,29 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
-      - name: Build and start services with Docker Compose
+      - name: Build and Start Services with Docker Compose
         env:
           MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/TestDB
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.POSTGRES_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          KAFKA_BOOTSTRAP_SERVERS: kafka:9092
         run: |
-          docker compose -f docker/docker-compose.yml up -d
-
-     # - name: Run Liquibase Migrations
-     #   env:
-     #     POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-     #     POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      #  run: |
-      #    docker compose -f Docker/docker-compose.yml run --rm app mvn test  # Run Maven tests
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.integration.yml up -d
 
       - name: Run Maven Tests
         env:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/TestDB
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.POSTGRES_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          KAFKA_BOOTSTRAP_SERVERS: kafka:9092
         run: |
-          
-          docker compose -f docker/docker-compose.yml run --rm app mvn test  # Run Maven tests
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.integration.yml run --rm app mvn test
 
-
-
-
-      - name: Tear down Docker stack
+      - name: Tear Down Docker Stack
         run: |
-          cd Docker
-          docker-compose down
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.integration.yml down

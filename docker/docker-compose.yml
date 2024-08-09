@@ -1,15 +1,16 @@
-services:
+version: '3.8'
 
+services:
   mongodb:
     image: mongo:4.4
-    container_name: MongoDB
+    container_name: mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
-      - ./MongoDBData:/data/db
+      - mongodb-data:/data/db
     networks:
       - app-network
 
@@ -25,16 +26,16 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:8.2.3
-    container_name: Franz
+    container_name: kafka
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
     volumes:
-      - ./KafkaData:/var/lib/kafka/data
+      - kafka-data:/var/lib/kafka/data
     depends_on:
       - zookeeper
     networks:
@@ -42,7 +43,7 @@ services:
 
   postgres:
     image: postgres:14.5
-    container_name: PostgreSQL
+    container_name: postgres
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
@@ -50,7 +51,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./PostgresData:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
 
@@ -58,15 +59,13 @@ services:
     build:
       context: ../KafkaTemplate
       dockerfile: KafkaTemplate.Dockerfile
-    container_name: TestSpring
+    container_name: app
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/TestDB
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${SPRING_DATASOURCE_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-    depends_on:
-      - postgres
     networks:
       - app-network
 
@@ -75,4 +74,6 @@ networks:
     driver: bridge
 
 volumes:
-  db_data:
+  mongodb-data:
+  kafka-data:
+  postgres-data:
