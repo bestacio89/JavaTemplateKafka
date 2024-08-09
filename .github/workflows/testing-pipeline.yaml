@@ -5,6 +5,8 @@ env:
   COMPOSE_DOCKER_CLI_BUILD: 1
 
 on:
+  push:
+    branches: ['develop']
   pull_request:
     branches: ['develop']
 
