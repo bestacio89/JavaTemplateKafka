@@ -14,8 +14,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Interface" />
-        <option value="Class" />
         <option value="Dockerfile" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -107,7 +107,7 @@
       <workItem from="1723058046341" duration="5153000" />
       <workItem from="1723112465282" duration="14981000" />
       <workItem from="1723186466918" duration="6368000" />
-      <workItem from="1723236632496" duration="1349000" />
+      <workItem from="1723236632496" duration="1752000" />
     </task>
     <servers />
   </component>
