@@ -25,7 +25,7 @@ services:
       - app-network
 
   kafka:
-    image: confluentinc/cp-kafka:8.2.3
+    image: apache/kafka:3.8.0
     container_name: kafka
     environment:
       KAFKA_BROKER_ID: 1

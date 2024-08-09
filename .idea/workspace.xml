@@ -5,9 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c928f9cc-2c4c-4b5c-90f9-7f7f30544f06" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose.dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose.dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose.prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose.prod.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose.test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose.test.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
