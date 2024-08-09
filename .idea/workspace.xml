@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c928f9cc-2c4c-4b5c-90f9-7f7f30544f06" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KafkaTemplate/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/KafkaTemplate/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KafkaTemplate/src/main/resources/application.properties" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +109,7 @@
       <workItem from="1723058046341" duration="5153000" />
       <workItem from="1723112465282" duration="14981000" />
       <workItem from="1723186466918" duration="6368000" />
-      <workItem from="1723236632496" duration="563000" />
+      <workItem from="1723236632496" duration="1030000" />
     </task>
     <servers />
   </component>
