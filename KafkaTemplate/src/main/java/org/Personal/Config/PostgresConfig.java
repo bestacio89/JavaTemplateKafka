@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
-
 @Configuration("spring.datasource")
 @EnableTransactionManagement
 @EnableJpaRepositories(
@@ -25,14 +24,14 @@ import javax.sql.DataSource;
 )
 public class PostgresConfig {
 
-    @Bean(name = "businessDataSourceProperties")
-    @ConfigurationProperties(prefix = "spring.datasource.businessdatasource")
+    @Bean(name = "dataSourceProperties")
+    @ConfigurationProperties(prefix = "spring.datasource")
     public DataSourceProperties dataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean(name = "businessDataSource")
-    public HikariDataSource dataSource(@Qualifier("businessDataSourceProperties") DataSourceProperties dataSourceProperties) {
+    public HikariDataSource dataSource(@Qualifier("dataSourceProperties") DataSourceProperties dataSourceProperties) {
         return dataSourceProperties.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
