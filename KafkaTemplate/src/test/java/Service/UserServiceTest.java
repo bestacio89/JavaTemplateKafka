@@ -3,9 +3,9 @@ package Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.Personal.Domain.Mongo.Entities.Event;
 import org.Personal.Domain.Mongo.Enums.EventType;
+import org.Personal.Domain.Postgres.BusinessObjects.User;
 import org.Personal.Service.UserService;
 import Config.KafkaTestConfig;
-import org.Personal.Domain.Postgres.BusinessObjects.User;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,8 +21,8 @@ import org.springframework.test.context.ContextConfiguration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.reset;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("test")
 public class UserServiceTest {
 
-
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -49,7 +48,7 @@ public class UserServiceTest {
     @BeforeEach
     public void setUp() {
         objectMapper = new ObjectMapper();
-        reset(countDownLatch); // Resetting CountDownLatch before each test
+
     }
 
     @Test

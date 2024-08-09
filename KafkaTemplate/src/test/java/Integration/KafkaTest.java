@@ -1,6 +1,5 @@
 package Integration;
 
-import Config.KafkaTestConfig;
 import org.Personal.Consumer.Consumer;
 import org.Personal.Main;
 import org.Personal.Producer.Producer;
@@ -15,8 +14,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
-
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
@@ -25,9 +25,10 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {KafkaTestConfig.class, Main.class},
+@SpringBootTest(classes = {Main.class}, // Ensure Main.class is used to load the context
         properties = "spring.main.allow-bean-definition-overriding=true",
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+        webEnvironment = SpringBootTest.WebEnvironment.NONE) // Use NONE for no web environment
+@EmbeddedKafka(topics = {"test-topic"}, partitions = 1) // Ensure the topic names and partitions match
 @ActiveProfiles("test")
 public class KafkaTest {
 
@@ -40,8 +41,8 @@ public class KafkaTest {
     @Autowired
     private BusinessRebuildService businessRebuildService;
 
-    @Autowired
-    private CountDownLatch countDownLatch;
+
+    private final CountDownLatch COUNTDOWNLATCH = new CountDownLatch( 6 );
 
     @Autowired
     private Consumer consumer;
@@ -90,11 +91,11 @@ public class KafkaTest {
 
     @Test
     void testEmptyMessage() throws Exception {
-        // Send an empty message
+        // Prepare the event with an empty User object
         producer.sendEvent(EventType.CREATION, new User());
 
         // Wait for the message to be received
-        boolean messageReceived = countDownLatch.await(10, TimeUnit.SECONDS);
+        boolean messageReceived = COUNTDOWNLATCH.await(10, TimeUnit.SECONDS);
         assertTrue(messageReceived, "Message was not received by the consumer");
 
         // Verify that the businessRebuildService handled the event
@@ -111,14 +112,12 @@ public class KafkaTest {
 
     @Test
     void testInvalidMessage() throws Exception {
-        // Send an invalid message (e.g., corrupted JSON)
+        // Send an invalid message directly to the Kafka topic
         String invalidMessage = "{ \"type\": \"INVALID_TYPE\", \"description\": \"Invalid message\", \"timestamp\": \"Not a date\" }";
-
-        // Send the invalid message directly to the Kafka topic
         kafkaTemplate.send("test-topic", invalidMessage);
 
         // Wait for the message to be processed
-        boolean messageReceived = countDownLatch.await(10, TimeUnit.SECONDS);
+        boolean messageReceived = COUNTDOWNLATCH.await(10, TimeUnit.SECONDS);
         assertTrue(messageReceived, "Message was not received by the consumer");
 
         // Verify that the businessRebuildService did not handle an invalid event
@@ -140,7 +139,7 @@ public class KafkaTest {
         producer.sendEvent(EventType.CREATION, user);
 
         // Wait for the message to be processed
-        boolean messageReceived = countDownLatch.await(10, TimeUnit.SECONDS);
+        boolean messageReceived = COUNTDOWNLATCH.await(10, TimeUnit.SECONDS);
         assertTrue(messageReceived, "Message was not received by the consumer");
 
         // Verify that the businessRebuildService attempted to handle the event
@@ -163,7 +162,7 @@ public class KafkaTest {
         producer.sendEvent(EventType.CREATION, user2);
 
         // Wait for messages to be received
-        boolean messagesReceived = countDownLatch.await(10, TimeUnit.SECONDS);
+        boolean messagesReceived = COUNTDOWNLATCH.await(10, TimeUnit.SECONDS);
         assertTrue(messagesReceived, "Messages were not received by the consumer");
 
         // Verify that the businessRebuildService handled the events
