@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
@@ -25,8 +25,9 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ContextConfiguration(classes = {KafkaTestConfig.class, Main.class})
-@SpringBootTest
+@SpringBootTest(classes = {KafkaTestConfig.class, Main.class},
+        properties = "spring.main.allow-bean-definition-overriding=true",
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class KafkaTest {
 
