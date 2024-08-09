@@ -3,7 +3,7 @@
 services:
   app:
     extends:
-      file: docker-compose.base.yml
+      file: docker-compose.yml
       service: app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/testdb
