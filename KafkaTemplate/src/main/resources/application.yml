@@ -1,65 +1,55 @@
 spring:
   main:
     allow-bean-definition-overriding: true
-  # PostgreSQL Configuration for Business Data
-  datasource:
-    businessdatasource:
-      url: ${SPRING_DATASOURCE_URL}
-      username: ${SPRING_DATASOURCE_USERNAME}
-      password: ${SPRING_DATASOURCE_PASSWORD}
-      driver-class-name: org.postgresql.Driver
 
-liquidbase:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      show-sql: true
+      format-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+liquibase:
   change-log: classpath:db/changelog/db.changelog-master.xml
   enabled: true
   default-schema: public
   contexts: development,test
 
+# MongoDB Configuration
+event:
+  mongodb:
+    uri: ${EVENT_DATASOURCE_URI}
+    database: ${EVENT_DATASOURCE_DATABASE}
 
-  jpa:
-    hibernate:
-      ddl-auto: ${JPA_DDL_AUTO}
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      show-sql: ${JPA_SHOW_SQL}
-      format-sql: true  # Pretty-print SQL in logs
-    properties:
-      hibernate:
-        format_sql: true
+# Kafka Configuration
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  consumer:
+    group-id: ${KAFKA_CONSUMER_GROUP_ID}
+    auto-offset-reset: latest
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
-  # MongoDB Configuration for Event Data
-  event:
-    mongodb:
-      uri: ${EVENT_DATASOURCE_URI}
-      database: ${EVENT_DATASOURCE_DATABASE}
+# Sleuth and Zipkin Configuration
+sleuth:
+  sampler:
+    probability: 1.0
 
-  # Kafka Configuration
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-    consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP_ID}
-      auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET}
-      key-deserializer: ${KAFKA_CONSUMER_KEY_DESERIALIZER}
-      value-deserializer: ${KAFKA_CONSUMER_VALUE_DESERIALIZER}
-    producer:
-      key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
-      value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
-
-  # Elasticsearch Configuration (optional, remove if not used)
-  data:
-    elasticsearch:
-      repositories:
-        enabled: true
-      cluster-name: ${ELASTICSEARCH_CLUSTER_NAME}
-      cluster-nodes: ${ELASTICSEARCH_CLUSTER_NODES}
-
-  # Sleuth and Zipkin Configuration
-  sleuth:
-    sampler:
-      probability: ${SLEUTH_SAMPLER_PROBABILITY}
-
-  zipkin:
-    base-url: ${ZIPKIN_BASE_URL}
-    enabled: ${ZIPKIN_ENABLED}
+zipkin:
+  base-url: ${ZIPKIN_BASE_URL}
+  enabled: true
 
 logging:
   level:
@@ -75,4 +65,4 @@ management:
         include: "*"
   tracing:
     sampling:
-      probability: ${TRACING_SAMPLING_PROBABILITY}
+      probability: 1.0
