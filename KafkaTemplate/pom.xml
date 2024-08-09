@@ -99,13 +99,14 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.36</version>
+
         </dependency>
 
         <!-- Logback for SLF4J -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
+            <version>1.5.6</version>
         </dependency>
 
         <!-- Logstash Logback Encoder -->

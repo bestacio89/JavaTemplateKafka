@@ -1,10 +1,9 @@
 package org.Personal.Service;
 
-
-
-
 import org.Personal.Domain.Mongo.Entities.Event;
 import org.Personal.Persistence.Mongo.EventRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +14,24 @@ import java.util.List;
 @Service
 public class EventService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EventService.class);
+
     @Autowired
     private EventRepository eventRepository;
 
-
-
     public Event getEventByName(String eventName) {
-        return eventRepository.findByEventName(eventName);
+        try {
+            Event event = eventRepository.findByEventName(eventName);
+            if (event != null) {
+                logger.info("Event found by name '{}': {}", eventName, event);
+            } else {
+                logger.warn("No event found with name '{}'", eventName);
+            }
+            return event;
+        } catch (Exception e) {
+            logger.error("Error retrieving event by name '{}'", eventName, e);
+            throw e; // Optionally rethrow or handle differently
+        }
     }
 
     public List<Event> getEventsUpTo(LocalDateTime timestamp) {
@@ -29,51 +39,95 @@ public class EventService {
             throw new IllegalArgumentException("Timestamp cannot be null");
         }
 
-        List<Event> events = eventRepository.findByTimestampBefore(timestamp);
-
-        if (events.isEmpty()) {
-            // Optionally log or handle the case when no events are found
-            return Collections.emptyList();
+        try {
+            List<Event> events = eventRepository.findByTimestampBefore(timestamp);
+            if (events.isEmpty()) {
+                logger.info("No events found before timestamp '{}'", timestamp);
+            } else {
+                logger.info("Found {} events before timestamp '{}'", events.size(), timestamp);
+            }
+            return events;
+        } catch (Exception e) {
+            logger.error("Error retrieving events before timestamp '{}'", timestamp, e);
+            throw e; // Optionally rethrow or handle differently
         }
-
-        return events;
     }
 
-
-
     public Event createEvent(Event event) {
-        event.setCreatedDate(LocalDateTime.now());
-        event.setUpdatedDate(LocalDateTime.now());
-        event.setDeleted(false);
-        return eventRepository.save(event);
+        try {
+            event.setCreatedDate(LocalDateTime.now());
+            event.setUpdatedDate(LocalDateTime.now());
+            event.setDeleted(false);
+            Event savedEvent = eventRepository.save(event);
+            logger.info("Event created: {}", savedEvent);
+            return savedEvent;
+        } catch (Exception e) {
+            logger.error("Error creating event: {}", event, e);
+            throw e; // Optionally rethrow or handle differently
+        }
     }
 
     public Event updateEvent(String id, Event updatedEvent) {
-        Event existingEvent = eventRepository.findById(id).orElse(null);
-        if (existingEvent != null) {
-            existingEvent.setType(updatedEvent.getType());
-            existingEvent.setDescription(updatedEvent.getDescription());
-            existingEvent.setTimestamp(updatedEvent.getTimestamp());
-            existingEvent.setUpdatedDate(LocalDateTime.now());
-            return eventRepository.save(existingEvent);
+        try {
+            Event existingEvent = eventRepository.findById(id).orElse(null);
+            if (existingEvent != null) {
+                existingEvent.setType(updatedEvent.getType());
+                existingEvent.setDescription(updatedEvent.getDescription());
+                existingEvent.setTimestamp(updatedEvent.getTimestamp());
+                existingEvent.setUpdatedDate(LocalDateTime.now());
+                Event savedEvent = eventRepository.save(existingEvent);
+                logger.info("Event updated: {}", savedEvent);
+                return savedEvent;
+            } else {
+                logger.warn("No event found with id '{}'", id);
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error updating event with id '{}'", id, e);
+            throw e; // Optionally rethrow or handle differently
         }
-        return null;
     }
 
     public Event getEventById(String id) {
-        return eventRepository.findById(id).orElse(null);
+        try {
+            Event event = eventRepository.findById(id).orElse(null);
+            if (event != null) {
+                logger.info("Event found by id '{}': {}", id, event);
+            } else {
+                logger.warn("No event found with id '{}'", id);
+            }
+            return event;
+        } catch (Exception e) {
+            logger.error("Error retrieving event by id '{}'", id, e);
+            throw e; // Optionally rethrow or handle differently
+        }
     }
 
     public List<Event> getAllEvents() {
-        return eventRepository.findAll();
+        try {
+            List<Event> events = eventRepository.findAll();
+            logger.info("Retrieved {} events", events.size());
+            return events;
+        } catch (Exception e) {
+            logger.error("Error retrieving all events", e);
+            throw e; // Optionally rethrow or handle differently
+        }
     }
 
     public void deleteEventById(String id) {
-        Event event = eventRepository.findById(id).orElse(null);
-        if (event != null) {
-            event.setDeleted(true);
-            event.setUpdatedDate(LocalDateTime.now());
-            eventRepository.save(event);
+        try {
+            Event event = eventRepository.findById(id).orElse(null);
+            if (event != null) {
+                event.setDeleted(true);
+                event.setUpdatedDate(LocalDateTime.now());
+                eventRepository.save(event);
+                logger.info("Event with id '{}' marked as deleted", id);
+            } else {
+                logger.warn("No event found with id '{}' to delete", id);
+            }
+        } catch (Exception e) {
+            logger.error("Error deleting event with id '{}'", id, e);
+            throw e; // Optionally rethrow or handle differently
         }
     }
 }

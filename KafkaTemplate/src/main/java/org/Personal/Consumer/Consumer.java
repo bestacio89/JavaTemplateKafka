@@ -1,14 +1,19 @@
 package org.Personal.Consumer;
 
-
 import org.Personal.Domain.Mongo.Entities.Event;
 import org.Personal.Service.BusinessRebuildService;
 import org.Personal.Utility.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Consumer {
+
+    private static final Logger logger = LoggerFactory.getLogger(Consumer.class);
 
     private final BusinessRebuildService eventReplayService;
 
@@ -17,9 +22,14 @@ public class Consumer {
     }
 
     @KafkaListener(topics = "test-topic", groupId = "my-group")
-    public void listen(String message) {
-        Event event = JsonUtil.deserialize(message, Event.class);
-        eventReplayService.handleEvent(event);
-        System.out.println("Received event in consumer: " + event);
+    public void listen(@Header(KafkaHeaders.RECEIVED_TOPIC) String topic, String message) {
+        try {
+            Event event = JsonUtil.deserialize(message, Event.class);
+            eventReplayService.handleEvent(event);
+            logger.info("Received event from topic {}: {}", topic, event);
+        } catch (Exception e) {
+            logger.error("Error processing message from topic {}: {}", topic, message, e);
+            // Optionally, handle the error, e.g., send the message to a dead-letter topic
+        }
     }
 }
