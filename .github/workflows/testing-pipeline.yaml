@@ -46,7 +46,7 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           KAFKA_BOOTSTRAP_SERVERS: kafka:9092
         run: |
-          docker compose -f docker/docker-compose.yml -f docker/docker-compose.integration.yml up -d
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml up -d
 
       - name: Run Maven Tests
         env:
@@ -57,8 +57,8 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           KAFKA_BOOTSTRAP_SERVERS: kafka:9092
         run: |
-          docker compose -f docker/docker-compose.yml -f docker/docker-compose.integration.yml run --rm app mvn test
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml run --rm app mvn test
 
       - name: Tear Down Docker Stack
         run: |
-          docker compose -f docker/docker-compose.yml -f docker/docker-compose.integration.yml down
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml down
