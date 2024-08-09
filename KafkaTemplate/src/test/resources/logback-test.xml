@@ -1,0 +1,29 @@
+<configuration>
+    <!-- Console Appender for outputting logs to the console -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender for Kafka-specific logs -->
+    <appender name="KAFKA" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger configuration -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <!-- Kafka specific logging configuration -->
+    <logger name="org.apache.kafka" level="DEBUG">
+        <appender-ref ref="KAFKA"/>
+    </logger>
+
+    <logger name="org.apache.zookeeper" level="DEBUG">
+        <appender-ref ref="KAFKA"/>
+    </logger>
+</configuration>

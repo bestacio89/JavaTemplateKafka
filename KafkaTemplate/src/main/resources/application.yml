@@ -1,42 +1,58 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
 
-  #Kafka configurations
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: your-group-id
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10  # Optional, customize based on your needs
 
-#Hibernate Configurations
   jpa:
     hibernate:
       ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
-      show_sql: true  # Set to true to log SQL statements
-      format_sql: true  # Pretty-print SQL in logs
-  datasource:
-    url: jdbc:mysql://localhost:3306/mydatabase #to change to use the desired SGDB
-    username: root
-    password: password
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  data:
-    elasticsearch:
-      repositories:
-        enabled: true
-      cluster-name: my-cluster
-      cluster-nodes: localhost:9300
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      show-sql: true
+      format-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
-  sleuth:
-    sampler:
-      probability: 1.0
-  zipkin:
-    base-url: http://localhost:9411/
-    enabled: true
+liquibase:
+  change-log: classpath:db/changelog/db.changelog-master.xml
+  enabled: true
+  default-schema: public
+  contexts: development,test
+
+
+# MongoDB Configuration
+event:
+  mongodb:
+    uri: ${EVENT_DATASOURCE_URI}
+    database: ${EVENT_DATASOURCE_DATABASE}
+
+# Kafka Configuration
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  consumer:
+    group-id: ${KAFKA_CONSUMER_GROUP_ID}
+    auto-offset-reset: latest
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+# Sleuth and Zipkin Configuration
+sleuth:
+  sampler:
+    probability: 1.0
+
+zipkin:
+  base-url: ${ZIPKIN_BASE_URL}
+  enabled: true
 
 logging:
   level:
@@ -53,6 +69,3 @@ management:
   tracing:
     sampling:
       probability: 1.0
-
-
-
