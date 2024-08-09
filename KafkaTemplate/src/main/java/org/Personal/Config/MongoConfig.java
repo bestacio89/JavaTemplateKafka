@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-@Configuration
+@Configuration("spring.event")
 @EnableMongoRepositories(basePackages = "org.Personal.Persistence.Mongo")
 public class MongoConfig extends AbstractMongoClientConfiguration {
 

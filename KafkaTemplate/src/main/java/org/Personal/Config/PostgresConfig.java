@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 
-@Configuration
+@Configuration("spring.datasource")
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = "org.Personal.Persistence.Postgres",
