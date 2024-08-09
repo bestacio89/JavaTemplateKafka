@@ -74,7 +74,7 @@ public class KafkaTest {
         producer.sendEvent(EventType.CREATION, user);
 
         // Wait for the message to be received
-        boolean messageReceived = countDownLatch.await(10, TimeUnit.SECONDS); // Adjust timeout as needed
+        boolean messageReceived = COUNTDOWNLATCH.await(10, TimeUnit.SECONDS); // Adjust timeout as needed
         assertTrue(messageReceived, "Message was not received by the consumer");
 
         // Verify that the businessRebuildService handled the event
