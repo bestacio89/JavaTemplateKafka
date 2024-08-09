@@ -1,5 +1,6 @@
 package Integration;
 
+import Config.KafkaTestConfig;
 import org.Personal.Consumer.Consumer;
 import org.Personal.Main;
 import org.Personal.Producer.Producer;
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {Main.class}, // Ensure Main.class is used to load the context
+@SpringBootTest(classes = {Main.class, KafkaTestConfig.class}, // Ensure Main.class is used to load the context
         properties = "spring.main.allow-bean-definition-overriding=true",
         webEnvironment = SpringBootTest.WebEnvironment.NONE) // Use NONE for no web environment
 @EmbeddedKafka(topics = {"test-topic"}, partitions = 1) // Ensure the topic names and partitions match

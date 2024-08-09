@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.Personal.Domain.Mongo.Entities.Event;
 import org.Personal.Domain.Mongo.Enums.EventType;
 import org.Personal.Domain.Postgres.BusinessObjects.User;
+import org.Personal.Main;
 import org.Personal.Service.UserService;
 import Config.KafkaTestConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
-@ContextConfiguration(classes = {KafkaTestConfig.class})
+@ContextConfiguration(classes = {KafkaTestConfig.class, Main.class})
 @EmbeddedKafka(topics = {"event-topic"}, partitions = 1)
 @ActiveProfiles("test")
 public class UserServiceTest {
