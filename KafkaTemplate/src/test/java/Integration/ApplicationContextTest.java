@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = {KafkaTestConfig.class, Main.class})
+@SpringBootTest(classes = {KafkaTestConfig.class})
 @ActiveProfiles("test")
 public class ApplicationContextTest {
     @Test
