@@ -36,7 +36,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
-      - name: Build and Start Services with Docker Compose
+      - name: Build Docker Images and Start Services
         env:
           MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
@@ -46,7 +46,8 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           KAFKA_BOOTSTRAP_SERVERS: kafka:9092
         run: |
-          docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml up -d
+          # Build and start services
+          docker compose -f docker/docker-compose.yml up -d
 
       - name: Run Maven Tests
         env:
@@ -57,8 +58,9 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           KAFKA_BOOTSTRAP_SERVERS: kafka:9092
         run: |
+          # Run tests in the 'app' service
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml run --rm app mvn test
 
       - name: Tear Down Docker Stack
         run: |
-          docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml down
+          docker compose -f docker/docker-compose.yml down
