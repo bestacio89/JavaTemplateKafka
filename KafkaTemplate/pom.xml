@@ -104,18 +104,18 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.4.7</version> <!-- or the version that matches your Spring Boot version -->
+            <version>LATEST</version> <!-- or the version that matches your Spring Boot version -->
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.7</version> <!-- or the version that matches your Spring Boot version -->
+            <version>LATEST</version> <!-- or the version that matches your Spring Boot version -->
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.4.8</version>
+            <version>LATEST</version>
         </dependency>
 
         <!-- Logstash Logback Encoder -->
