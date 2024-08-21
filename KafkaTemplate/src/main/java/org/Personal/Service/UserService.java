@@ -1,16 +1,21 @@
 package org.Personal.Service;
 
-import org.Personal.Domain.Mongo.Entities.Event;
 import org.Personal.Domain.Mongo.Enums.EventType;
 import org.Personal.Domain.Postgres.BusinessObjects.User;
+import org.Personal.Exceptions.ResourceNotFoundException;
 import org.Personal.Persistence.Postgres.UserRepository;
 import org.Personal.Producer.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
+import java.util.Optional.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -27,50 +32,53 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        try {
-            user.setCreatedAt(LocalDateTime.now());
-            User savedUser = userRepository.save(user);
-
-            // Publish an event
-            producer.sendEvent(EventType.CREATION, savedUser);
-
-            logger.info("User created successfully: {}", savedUser);
-            return savedUser;
-        } catch (Exception e) {
-            logger.error("Error creating user: {}", user, e);
-            throw e; // Optionally rethrow or handle differently
-        }
+        user.setCreatedAt(LocalDateTime.now());
+        User savedUser = userRepository.save(user);
+        producer.sendEvent(EventType.CREATION, savedUser);
+        logger.info("User created successfully: {}", savedUser);
+        return savedUser;
     }
 
-    public void deleteUser(Long userId) {
-        try {
-            User userToDelete = userRepository.findById(userId).orElse(null);
-            if (userToDelete != null) {
-                userRepository.deleteById(userId);
-                // Publish an event
-                producer.sendEvent(EventType.DELETION, userToDelete);
-                logger.info("User deleted successfully: {}", userToDelete);
-            } else {
-                logger.warn("No user found with id '{}'", userId);
-            }
-        } catch (Exception e) {
-            logger.error("Error deleting user with id '{}'", userId, e);
-            throw e; // Optionally rethrow or handle differently
-        }
+    public User updateUser(Long userId, User userDetails) {
+        return userRepository.findById(userId).map(user -> {
+            user.setUsername(userDetails.getUsername());
+            user.setEmail(userDetails.getEmail());
+            user.setUpdatedDate(LocalDateTime.now());
+            User updatedUser = userRepository.save(user);
+            producer.sendEvent(EventType.EDITION, updatedUser);
+            logger.info("User updated successfully: {}", updatedUser);
+            return updatedUser;
+        }).orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
     }
 
     public User getUserByUsername(String username) {
-        try {
-            User user = userRepository.findByUsername(username);
-            if (user != null) {
-                logger.info("User found by username '{}': {}", username, user);
-            } else {
-                logger.warn("No user found with username '{}'", username);
-            }
-            return user;
-        } catch (Exception e) {
-            logger.error("Error retrieving user by username '{}'", username, e);
-            throw e; // Optionally rethrow or handle differently
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username " + username));
+    }
+
+    public List<User> getAllUsers(int page, int size, String sortBy, String direction) {
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<User> pagedResult = userRepository.findAll(pageable);
+        return pagedResult.getContent();
+    }
+
+    public void deleteUserById(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found with id " + userId);
         }
+        userRepository.deleteById(userId);
+        logger.info("User deleted successfully with id: {}", userId);
+    }
+
+    public void deleteUserByUsername(String username) {
+        User user = getUserByUsername(username);
+        userRepository.delete(user);
+        logger.info("User deleted successfully with username: {}", username);
     }
 }
