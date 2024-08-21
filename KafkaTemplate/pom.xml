@@ -51,7 +51,19 @@
             <artifactId>spring-kafka</artifactId>
             <version>3.2.2</version> <!-- Use spring-boot.version for consistent versioning -->
         </dependency>
+        <!-- Hibernate Validator (reference implementation of JSR 380) -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.1.Final</version> <!-- Use the latest stable version -->
+        </dependency>
 
+        <!-- Jakarta Validation API -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version> <!-- Use the latest stable version -->
+        </dependency>
         <!-- PostgreSQL Driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
